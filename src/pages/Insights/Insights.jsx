@@ -9,20 +9,6 @@ import Loader from '../../components/Loader/Loader';
 const Insights = () => {
   const { transactions, isLoading, error, role } = useTransactionContext();
 
-  if (isLoading) {
-    return <Loader />;
-  }
-
-  if (error) {
-    return (
-      <div className="empty-state glass-card">
-        <AlertCircle size={48} className="empty-icon" style={{ color: 'var(--danger-color)' }} />
-        <h3>Data Fetch Failed</h3>
-        <p>{error}</p>
-      </div>
-    );
-  }
-
   const expenses = transactions.filter(t => t.type === 'expense');
 
   const insightsData = useMemo(() => {
@@ -135,6 +121,20 @@ const Insights = () => {
       monthlyIncomeExpenseData
     };
   }, [transactions, expenses]);
+
+  if (isLoading) {
+    return <Loader />;
+  }
+
+  if (error) {
+    return (
+      <div className="empty-state glass-card">
+        <AlertCircle size={48} className="empty-icon" style={{ color: 'var(--danger-color)' }} />
+        <h3>Data Fetch Failed</h3>
+        <p>{error}</p>
+      </div>
+    );
+  }
 
   if (!insightsData) {
     return (

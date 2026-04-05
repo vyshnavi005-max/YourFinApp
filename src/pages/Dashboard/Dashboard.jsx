@@ -13,10 +13,6 @@ const COLORS = ['#3b82f6', '#10b981', '#ef4444', '#f59e0b', '#8b5cf6', '#ec4899'
 const Dashboard = () => {
   const { transactions, isLoading, role } = useTransactionContext();
 
-  if (isLoading) {
-    return <Loader />;
-  }
-
   // Basic summary stats calculated from transaction list
   const { income, expense, balance } = useMemo(() => {
     let inc = 0, exp = 0;
@@ -29,37 +25,6 @@ const Dashboard = () => {
 
     return { income: inc, expense: exp, balance: inc - exp };
   }, [transactions]);
-
-  // If no transactions, show a central empty state
-  if (transactions.length === 0) {
-    return (
-      <div className="dashboard">
-        <div className="dashboard-header">
-          <h1>Dashboard</h1>
-        </div>
-        <div className="empty-state glass-card" style={{ padding: '4rem 2rem' }}>
-          <IndianRupee size={64} className="empty-icon" style={{ opacity: 0.2, marginBottom: '1.5rem' }} />
-          <h2>Welcome to your Finance Dashboard!</h2>
-          <p style={{ maxWidth: '500px', margin: '0.5rem auto 1.5rem' }}>
-            It looks like you haven't added any data yet. Start tracking your finances to see balances, trends, and breakdowns here.
-          </p>
-
-          {role === 'admin' ? (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-              <Link to="/transactions?action=add" className="btn btn-primary" style={{ padding: '0.8rem 1.5rem', fontSize: '1rem' }}>
-                <TrendingUp size={18} style={{ marginRight: '0.5rem' }} />
-                Add Your First Transaction
-              </Link>
-            </div>
-          ) : (
-            <div className="role-hint" style={{ margin: '0 auto' }}>
-              <p>You are currently in <strong>Viewer</strong> mode. Please switch to <strong>Admin</strong> in the header to start adding transactions.</p>
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  }
 
   // Group expenses by category for the pie chart
   const expenseByCategory = useMemo(() => {
@@ -120,6 +85,41 @@ const Dashboard = () => {
 
     return daysArr;
   }, [transactions]);
+
+  if (isLoading) {
+    return <Loader />;
+  }
+
+  // If no transactions, show a central empty state
+  if (transactions.length === 0) {
+    return (
+      <div className="dashboard">
+        <div className="dashboard-header">
+          <h1>Dashboard</h1>
+        </div>
+        <div className="empty-state glass-card" style={{ padding: '4rem 2rem' }}>
+          <IndianRupee size={64} className="empty-icon" style={{ opacity: 0.2, marginBottom: '1.5rem' }} />
+          <h2>Welcome to your Finance Dashboard!</h2>
+          <p style={{ maxWidth: '500px', margin: '0.5rem auto 1.5rem' }}>
+            It looks like you haven't added any data yet. Start tracking your finances to see balances, trends, and breakdowns here.
+          </p>
+
+          {role === 'admin' ? (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+              <Link to="/transactions?action=add" className="btn btn-primary" style={{ padding: '0.8rem 1.5rem', fontSize: '1rem' }}>
+                <TrendingUp size={18} style={{ marginRight: '0.5rem' }} />
+                Add Your First Transaction
+              </Link>
+            </div>
+          ) : (
+            <div className="role-hint" style={{ margin: '0 auto' }}>
+              <p>You are currently in <strong>Viewer</strong> mode. Please switch to <strong>Admin</strong> in the header to start adding transactions.</p>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="dashboard">

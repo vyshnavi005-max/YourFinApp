@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useTransactionContext } from '../../context/TransactionContext';
 import { CATEGORIES } from '../../data/mockData';
 import { X } from 'lucide-react';
@@ -7,41 +7,24 @@ import './TransactionForm.css';
 function TransactionForm({ isOpen, onClose, transactionToEdit = null }) {
   const { addTransaction, updateTransaction, isLoading } = useTransactionContext();
 
-  const [formData, setFormData] = useState({
+  const initialFormData = transactionToEdit ? {
+    description: transactionToEdit.description,
+    amount: transactionToEdit.amount,
+    type: transactionToEdit.type,
+    category: transactionToEdit.category,
+    date: transactionToEdit.date
+  } : {
     description: '',
     amount: '',
     type: 'expense',
     category: CATEGORIES.expense[0],
     date: new Date().toISOString().split('T')[0]
+  };
+
+  const [formData, setFormData] = useState({
+    ...initialFormData
   });
-
-
-
   const [amountError, setAmountError] = useState('');
-
-  useEffect(() => {
-    if (!isOpen) {
-      setAmountError('');
-      return;
-    }
-    if (transactionToEdit) {
-      setFormData({
-        description: transactionToEdit.description,
-        amount: transactionToEdit.amount,
-        type: transactionToEdit.type,
-        category: transactionToEdit.category,
-        date: transactionToEdit.date
-      });
-    } else {
-      setFormData({
-        description: '',
-        amount: '',
-        type: 'expense',
-        category: CATEGORIES.expense[0],
-        date: new Date().toISOString().split('T')[0]
-      });
-    }
-  }, [transactionToEdit, isOpen]);
 
   if (!isOpen) return null;
 

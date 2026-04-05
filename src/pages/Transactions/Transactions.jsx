@@ -14,14 +14,8 @@ export default function Transactions() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [txToEdit, setTxToEdit] = useState(null);
-
-  useEffect(() => {
-    if (searchParams.get('action') === 'add' && role === 'admin') {
-      setIsModalOpen(true);
-      // Clean up search params
-      setSearchParams({}, { replace: true });
-    }
-  }, [searchParams, setSearchParams, role]);
+  const autoOpenFromQuery = searchParams.get('action') === 'add' && role === 'admin';
+  const isFormOpen = isModalOpen || autoOpenFromQuery;
 
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -387,10 +381,14 @@ export default function Transactions() {
       </div>
 
       <TransactionForm
-        isOpen={isModalOpen}
+        key={txToEdit ? `edit-${txToEdit.id}` : 'new'}
+        isOpen={isFormOpen}
         onClose={() => {
           setIsModalOpen(false);
           setTxToEdit(null);
+          if (autoOpenFromQuery) {
+            setSearchParams({}, { replace: true });
+          }
         }}
         transactionToEdit={txToEdit}
       />

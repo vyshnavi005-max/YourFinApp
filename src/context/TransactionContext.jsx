@@ -37,10 +37,6 @@ export const TransactionProvider = ({ children }) => {
   // Load initial static data or previous session data
   useEffect(() => {
     async function loadData() {
-      if (transactions.length > 0) {
-        setIsLoading(false);
-        return;
-      }
       try {
         setIsLoading(true);
         const data = await api.fetchTransactions();

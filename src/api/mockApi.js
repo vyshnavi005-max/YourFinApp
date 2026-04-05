@@ -1,25 +1,49 @@
 import { mockTransactions } from '../data/mockData';
 
 const FAKE_DELAY = 800; // adding a small delay so it feels like a real backend call
+const STORAGE_KEY = 'finapp_v2_transactions';
+const BOOTSTRAP_KEY = 'finapp_v2_bootstrapped';
 
-// get from local storage or fallback to mock data initially
-function getInitialData() {
-  const savedData = localStorage.getItem('finapp_v2_transactions');
-  if (savedData) {
-    return JSON.parse(savedData);
+function getStoredData() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) {
+    return null;
   }
-  return mockTransactions;
+
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
 }
 
 function saveDataToLocal(data) {
-  localStorage.setItem('finapp_v2_transactions', JSON.stringify(data));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function seedInitialDataIfNeeded() {
+  const hasBootstrapped = localStorage.getItem(BOOTSTRAP_KEY) === '1';
+  const existing = getStoredData();
+
+  if (!hasBootstrapped || !existing) {
+    saveDataToLocal(mockTransactions);
+    localStorage.setItem(BOOTSTRAP_KEY, '1');
+    return [...mockTransactions];
+  }
+
+  return existing;
+}
+
+function getCurrentData() {
+  return getStoredData() ?? seedInitialDataIfNeeded();
 }
 
 export const api = {
   fetchTransactions: async () => {
     return new Promise((resolve) => {
       setTimeout(() => {
-        resolve(getInitialData());
+        resolve(getCurrentData());
       }, FAKE_DELAY);
     });
   },
@@ -27,7 +51,7 @@ export const api = {
   addTransaction: async (newItem) => {
     return new Promise((resolve) => {
       setTimeout(() => {
-        const currentData = getInitialData();
+        const currentData = getCurrentData();
         // just spoofing a quick id
         const itemWithId = { ...newItem, id: Date.now().toString() };
 
@@ -41,7 +65,7 @@ export const api = {
   updateTransaction: async (id, updatedFields) => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        const data = getInitialData();
+        const data = getCurrentData();
         const itemIndex = data.findIndex(item => item.id === id);
 
         if (itemIndex === -1) {
@@ -58,7 +82,7 @@ export const api = {
   deleteTransaction: async (id) => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        let data = getInitialData();
+        let data = getCurrentData();
         const startLength = data.length;
         data = data.filter(item => item.id !== id);
 
