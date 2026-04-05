@@ -16,7 +16,7 @@ function saveDataToLocal(data) {
 }
 
 export const api = {
-  fetchTransactions: async()=> {
+  fetchTransactions: async () => {
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve(getInitialData());
@@ -30,7 +30,7 @@ export const api = {
         const currentData = getInitialData();
         // just spoofing a quick id
         const itemWithId = { ...newItem, id: Date.now().toString() };
-        
+
         const updatedData = [itemWithId, ...currentData];
         saveDataToLocal(updatedData);
         resolve(itemWithId);
@@ -43,11 +43,11 @@ export const api = {
       setTimeout(() => {
         const data = getInitialData();
         const itemIndex = data.findIndex(item => item.id === id);
-        
+
         if (itemIndex === -1) {
           return reject(new Error('Transaction not found.'));
         }
-        
+
         data[itemIndex] = { ...data[itemIndex], ...updatedFields };
         saveDataToLocal(data);
         resolve(data[itemIndex]);
@@ -61,11 +61,11 @@ export const api = {
         let data = getInitialData();
         const startLength = data.length;
         data = data.filter(item => item.id !== id);
-        
+
         if (data.length === startLength) {
           return reject(new Error("Couldn't find that transaction to delete"));
         }
-        
+
         saveDataToLocal(data);
         resolve(true); // success
       }, FAKE_DELAY);
