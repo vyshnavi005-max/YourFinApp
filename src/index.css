@@ -44,6 +44,7 @@ input::-webkit-inner-spin-button {
 /* Firefox: Hide number input spinners */
 input[type=number] {
   -moz-appearance: textfield;
+  appearance: textfield;
 }
 
 * {
@@ -145,3 +146,8 @@ h3 {
     padding: 1rem;
   }
 }
+.role-hint { margin-top: 1.5rem; padding: 1.25rem; background-color: var(--bg-color); border-radius: var(--border-radius-md); border: 1px solid var(--border-color); max-width: 400px; text-align: center; box-shadow: var(--box-shadow); }
+.role-hint p { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.5; margin: 0; }
+.role-hint strong { color: var(--text-primary); font-weight: 700; }
+.empty-chart-msg { color: var(--text-secondary); font-size: 0.9rem; font-weight: 500; padding: 3rem 1rem; text-align: center; }
+

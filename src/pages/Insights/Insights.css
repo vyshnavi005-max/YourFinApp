@@ -18,6 +18,7 @@
 }
 
 .insight-card {
+  min-width: 0;
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
@@ -60,7 +61,7 @@
 }
 
 .insight-card strong {
-  color: var(--primary-color);
+  color: var(--text-primary);
   font-weight: 700;
 }
 

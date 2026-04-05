@@ -1,12 +1,13 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { useTransactionContext } from '../../context/TransactionContext';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts';
 import { ReceiptText, AlertCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import './Insights.css';
 import Loader from '../../components/Loader/Loader';
 
 const Insights = () => {
-  const { transactions, isLoading, error } = useTransactionContext();
+  const { transactions, isLoading, error, role } = useTransactionContext();
 
   if (isLoading) {
     return <Loader />;
@@ -25,7 +26,7 @@ const Insights = () => {
   const expenses = transactions.filter(t => t.type === 'expense');
 
   const insightsData = useMemo(() => {
-    if (expenses.length === 0) return null;
+    if (transactions.length === 0) return null;
 
     const categoryTotals = {};
     let totalExpense = 0;
@@ -36,13 +37,15 @@ const Insights = () => {
       categoryTotals[tx.category] = (categoryTotals[tx.category] || 0) + amt;
     });
 
-    let highestCategory = '';
+    let highestCategory = 'N/A';
     let highestCategoryAmount = 0;
 
-    for (const [cat, amt] of Object.entries(categoryTotals)) {
-      if (amt > highestCategoryAmount) {
-        highestCategoryAmount = amt;
-        highestCategory = cat;
+    if (Object.keys(categoryTotals).length > 0) {
+      for (const [cat, amt] of Object.entries(categoryTotals)) {
+        if (amt > highestCategoryAmount) {
+          highestCategoryAmount = amt;
+          highestCategory = cat;
+        }
       }
     }
 
@@ -65,9 +68,9 @@ const Insights = () => {
       }
 
       if (tx.type === 'income') {
-        monthlyDataMap[monthYear].income += parseFloat(tx.amount);
+        monthlyDataMap[monthYear].income += parseFloat(tx.amount || 0);
       } else if (tx.type === 'expense') {
-        monthlyDataMap[monthYear].expense += parseFloat(tx.amount);
+        monthlyDataMap[monthYear].expense += parseFloat(tx.amount || 0);
       }
     });
 
@@ -96,7 +99,9 @@ const Insights = () => {
     let monthlyChangeStr = "No data for previous month to compare.";
     let changeType = 'none';
 
-    if (prevMonthTotal > 0) {
+    if (expenses.length === 0) {
+      monthlyChangeStr = "No expenses recorded yet.";
+    } else if (prevMonthTotal > 0) {
       const diff = currentMonthTotal - prevMonthTotal;
       const percentage = Math.round(Math.abs(diff) / prevMonthTotal * 100);
       if (diff > 0) {
@@ -110,12 +115,14 @@ const Insights = () => {
       }
     }
 
-    let highestSingleExpense = expenses[0];
-    expenses.forEach(tx => {
-      if (parseFloat(tx.amount) > parseFloat(highestSingleExpense.amount)) {
-        highestSingleExpense = tx;
-      }
-    });
+    let highestSingleExpense = expenses.length > 0 ? expenses[0] : null;
+    if (highestSingleExpense) {
+      expenses.forEach(tx => {
+        if (parseFloat(tx.amount) > parseFloat(highestSingleExpense.amount)) {
+          highestSingleExpense = tx;
+        }
+      });
+    }
 
     return {
       highestCategory,
@@ -131,9 +138,29 @@ const Insights = () => {
 
   if (!insightsData) {
     return (
-      <div className="empty-state glass-card">
-        <ReceiptText size={48} className="empty-icon" />
-        <h3>No transactions found</h3>
+      <div className="insights-page">
+        <div className="dashboard-header" style={{ marginBottom: '2rem' }}>
+          <h1>Detailed Insights</h1>
+        </div>
+        <div className="empty-state glass-card">
+          <ReceiptText size={48} className="empty-icon" />
+          <h3>No transactions found</h3>
+          <p>
+            {role === 'admin' 
+              ? "Start by adding your first transaction to see your analytics." 
+              : "Switch to the Admin role to start adding transactions."
+            }
+          </p>
+          {role === 'admin' ? (
+            <Link to="/transactions?action=add" className="btn btn-primary" style={{ marginTop: '1rem' }}>
+              Add Transaction
+            </Link>
+          ) : (
+            <div className="role-hint">
+              <p>Use the role switcher in the header to become an <strong>Admin</strong>.</p>
+            </div>
+          )}
+        </div>
       </div>
     );
   }
@@ -161,10 +188,14 @@ const Insights = () => {
         <div className="insights-grid">
           <div className="insight-card glass-card">
             <h4>Top Spending</h4>
-            <p>
-              You spent the most on <strong>{highestCategory}</strong> (₹{highestCategoryAmount.toLocaleString()}),
-              which is <strong>{categoryPercentage}%</strong> of your total expenses.
-            </p>
+            {highestCategoryAmount > 0 ? (
+              <p>
+                You spent the most on <strong>{highestCategory}</strong> (₹{highestCategoryAmount.toLocaleString()}),
+                which is <strong>{categoryPercentage}%</strong> of your total expenses.
+              </p>
+            ) : (
+              <p>No expenses recorded yet. Your spending breakdown will appear here.</p>
+            )}
           </div>
 
           <div className="insight-card glass-card">
@@ -178,9 +209,13 @@ const Insights = () => {
 
           <div className="insight-card glass-card">
             <h4>Largest Expense</h4>
-            <p>
-              Your highest single expense was <strong>₹{parseFloat(highestSingleExpense.amount).toLocaleString()}</strong> on {highestSingleExpense.category}.
-            </p>
+            {highestSingleExpense ? (
+              <p>
+                Your highest single expense was <strong>₹{parseFloat(highestSingleExpense.amount).toLocaleString()}</strong> on {highestSingleExpense.category}.
+              </p>
+            ) : (
+              <p>No expenses recorded yet. Your largest purchases will be highlighted here.</p>
+            )}
           </div>
         </div>
 

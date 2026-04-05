@@ -1,8 +1,9 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { useTransactionContext } from '../../context/TransactionContext';
 import { format } from 'date-fns';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
 import { TrendingUp, TrendingDown, IndianRupee } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import './Dashboard.css';
 import Loader from '../../components/Loader/Loader';
 import { subDays, isAfter, startOfDay } from 'date-fns';
@@ -10,7 +11,7 @@ import { subDays, isAfter, startOfDay } from 'date-fns';
 const COLORS = ['#3b82f6', '#10b981', '#ef4444', '#f59e0b', '#8b5cf6', '#ec4899', '#64748b'];
 
 const Dashboard = () => {
-  const { transactions, isLoading } = useTransactionContext();
+  const { transactions, isLoading, role } = useTransactionContext();
 
   if (isLoading) {
     return <Loader />;
@@ -28,6 +29,37 @@ const Dashboard = () => {
 
     return { income: inc, expense: exp, balance: inc - exp };
   }, [transactions]);
+
+  // If no transactions, show a central empty state
+  if (transactions.length === 0) {
+    return (
+      <div className="dashboard">
+        <div className="dashboard-header">
+          <h1>Dashboard</h1>
+        </div>
+        <div className="empty-state glass-card" style={{ padding: '4rem 2rem' }}>
+          <IndianRupee size={64} className="empty-icon" style={{ opacity: 0.2, marginBottom: '1.5rem' }} />
+          <h2>Welcome to your Finance Dashboard!</h2>
+          <p style={{ maxWidth: '500px', margin: '0.5rem auto 1.5rem' }}>
+            It looks like you haven't added any data yet. Start tracking your finances to see balances, trends, and breakdowns here.
+          </p>
+          
+          {role === 'admin' ? (
+             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+                <Link to="/transactions?action=add" className="btn btn-primary" style={{ padding: '0.8rem 1.5rem', fontSize: '1rem' }}>
+                  <TrendingUp size={18} style={{ marginRight: '0.5rem' }} />
+                  Add Your First Transaction
+                </Link>
+             </div>
+          ) : (
+            <div className="role-hint" style={{ margin: '0 auto' }}>
+              <p>You are currently in <strong>Viewer</strong> mode. Please switch to <strong>Admin</strong> in the header to start adding transactions.</p>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   // Group expenses by category for the pie chart
   const expenseByCategory = useMemo(() => {
@@ -62,7 +94,7 @@ const Dashboard = () => {
   const last7DaysData = useMemo(() => {
     const today = startOfDay(new Date());
     const sevenDaysAgo = subDays(today, 6);
-    
+
     // Create an array of the last 7 days
     const daysArr = [];
     for (let i = 0; i < 7; i++) {
@@ -187,7 +219,7 @@ const Dashboard = () => {
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" />
                   <XAxis dataKey="dateStr" tick={{ fill: 'var(--text-secondary)', fontSize: 11 }} tickLine={false} axisLine={false} />
                   <YAxis tick={{ fill: 'var(--text-secondary)', fontSize: 11 }} tickLine={false} axisLine={false} />
-                  <Tooltip 
+                  <Tooltip
                     cursor={{ fill: 'var(--border-color)', opacity: 0.4 }}
                     contentStyle={{ backgroundColor: 'var(--surface-color)', borderColor: 'var(--border-color)', color: 'var(--text-primary)', borderRadius: '8px' }}
                     formatter={(v) => `₹${v}`}

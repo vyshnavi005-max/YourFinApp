@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useTransactionContext } from '../../context/TransactionContext';
-import { Search, Filter, Plus, Edit2, Trash2, ReceiptText, AlertCircle, Download, FileJson, Settings2, X } from 'lucide-react';
+import { Search, Plus, Edit2, Trash2, ReceiptText, AlertCircle, Download, FileJson, Settings2, X } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 import { exportCSV, exportJSON } from '../../utils/export';
 import './Transactions.css';
 import { format } from 'date-fns';
@@ -9,9 +10,18 @@ import Loader from '../../components/Loader/Loader';
 
 export default function Transactions() {
   const { transactions, role, deleteTransaction, isLoading, error } = useTransactionContext();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [txToEdit, setTxToEdit] = useState(null);
+
+  useEffect(() => {
+    if (searchParams.get('action') === 'add' && role === 'admin') {
+      setIsModalOpen(true);
+      // Clean up search params
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setSearchParams, role]);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -298,6 +308,26 @@ export default function Transactions() {
           <div className="empty-state">
             <ReceiptText size={48} className="empty-icon" />
             <h3>No transactions found</h3>
+            <p>
+              {searchTerm 
+                ? "We couldn't find any transactions matching your search." 
+                : role === 'admin' 
+                  ? "Start by adding your first transaction to see it here." 
+                  : "Switch to the Admin role to start adding transactions."
+              }
+            </p>
+            {!searchTerm && (
+              role === 'admin' ? (
+                <button className="btn btn-primary" style={{ marginTop: '1rem' }} onClick={handleOpenAdd}>
+                  <Plus size={18} />
+                  Add Transaction
+                </button>
+              ) : (
+                <div className="role-hint">
+                  <p>Use the role switcher in the header to become an <strong>Admin</strong>.</p>
+                </div>
+              )
+            )}
           </div>
         ) : (
           <div className="table-responsive">

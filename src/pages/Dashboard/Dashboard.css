@@ -90,6 +90,10 @@
 }
 
 
+.chart-card {
+  min-width: 0;
+}
+
 .chart-card h3 {
   color: var(--text-primary);
   font-size: 1.125rem;

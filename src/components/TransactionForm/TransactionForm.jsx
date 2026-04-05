@@ -17,8 +17,13 @@ function TransactionForm({ isOpen, onClose, transactionToEdit = null }) {
 
 
 
+  const [amountError, setAmountError] = useState('');
+
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) {
+      setAmountError('');
+      return;
+    }
     if (transactionToEdit) {
       setFormData({
         description: transactionToEdit.description,
@@ -53,7 +58,17 @@ function TransactionForm({ isOpen, onClose, transactionToEdit = null }) {
 
   const handleFormSubmit = async (event) => {
     event.preventDefault();
-    const payload = { ...formData, amount: parseFloat(formData.amount) };
+    setAmountError('');
+
+    const parsedAmount = parseFloat(formData.amount);
+    
+    // Explicit validation for amount > 0
+    if (isNaN(parsedAmount) || parsedAmount <= 0) {
+      setAmountError('Amount must be greater than zero');
+      return;
+    }
+
+    const payload = { ...formData, amount: parsedAmount };
   
     if (transactionToEdit) {
       await updateTransaction(transactionToEdit.id, payload);
@@ -66,7 +81,7 @@ function TransactionForm({ isOpen, onClose, transactionToEdit = null }) {
 
   return (
     <div className="modal-overlay">
-      <div className="modal-content card">
+      <div className="modal-content card slide-up">
         <div className="modal-header">
           <h2>{transactionToEdit ? 'Edit Transaction' : 'Add Transaction'}</h2>
           <button className="icon-btn" onClick={onClose}><X size={20} /></button>
@@ -101,7 +116,7 @@ function TransactionForm({ isOpen, onClose, transactionToEdit = null }) {
           <div className="form-group row">
             <div className="col">
               <label>Amount</label>
-              <div className="amount-input">
+              <div className={`amount-input ${amountError ? 'invalid' : ''}`}>
                 <span className="currency">₹</span>
                 <input
                   type="number"
@@ -109,10 +124,14 @@ function TransactionForm({ isOpen, onClose, transactionToEdit = null }) {
                   min="0.01"
                   step="0.01"
                   value={formData.amount}
-                  onChange={e => setFormData(p => ({ ...p, amount: e.target.value }))}
+                  onChange={e => {
+                    setFormData(p => ({ ...p, amount: e.target.value }));
+                    if (amountError) setAmountError('');
+                  }}
                   placeholder="0.00"
                 />
               </div>
+              {amountError && <span className="error-text">{amountError}</span>}
             </div>
             <div className="col">
               <label>Date</label>
