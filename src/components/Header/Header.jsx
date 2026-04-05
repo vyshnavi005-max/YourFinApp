@@ -21,7 +21,7 @@ const Header = () => {
   }
 
   return (
-    <header className="header glass-card">
+    <header className="header">
       <Link to="/" className='app-name'>
         <div className="logo-icon"><IndianRupee size={24} /></div>
         <h1>Your FinApp</h1>

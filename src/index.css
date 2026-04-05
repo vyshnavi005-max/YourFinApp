@@ -59,6 +59,17 @@ body {
   color: var(--text-primary);
   line-height: 1.5;
   transition: var(--transition);
+  overflow-x: hidden !important;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  overflow-x: hidden !important;
+  width: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 a {
