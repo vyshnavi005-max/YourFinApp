@@ -1,0 +1,11 @@
+.loader-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  width: 100%;
+}
+
+.loader-container {
+  animation: fadeIn 0.3s ease-out;
+}
