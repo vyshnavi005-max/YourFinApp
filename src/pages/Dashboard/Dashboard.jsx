@@ -21,7 +21,7 @@ const Dashboard = () => {
   const { income, expense, balance } = useMemo(() => {
     let inc = 0, exp = 0;
 
-    // Tally up totals
+    // calculate totals
     transactions.forEach(tx => {
       if (tx.type === 'income') inc += parseFloat(tx.amount);
       if (tx.type === 'expense') exp += parseFloat(tx.amount);
@@ -43,14 +43,14 @@ const Dashboard = () => {
           <p style={{ maxWidth: '500px', margin: '0.5rem auto 1.5rem' }}>
             It looks like you haven't added any data yet. Start tracking your finances to see balances, trends, and breakdowns here.
           </p>
-          
+
           {role === 'admin' ? (
-             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-                <Link to="/transactions?action=add" className="btn btn-primary" style={{ padding: '0.8rem 1.5rem', fontSize: '1rem' }}>
-                  <TrendingUp size={18} style={{ marginRight: '0.5rem' }} />
-                  Add Your First Transaction
-                </Link>
-             </div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+              <Link to="/transactions?action=add" className="btn btn-primary" style={{ padding: '0.8rem 1.5rem', fontSize: '1rem' }}>
+                <TrendingUp size={18} style={{ marginRight: '0.5rem' }} />
+                Add Your First Transaction
+              </Link>
+            </div>
           ) : (
             <div className="role-hint" style={{ margin: '0 auto' }}>
               <p>You are currently in <strong>Viewer</strong> mode. Please switch to <strong>Admin</strong> in the header to start adding transactions.</p>
@@ -162,7 +162,7 @@ const Dashboard = () => {
           <h3>Balance Trend</h3>
           {transactions.length === 0 ? (<h3 className="empty-chart-msg">No transactions yet</h3>) : (
             <div className="chart-container">
-              <ResponsiveContainer width="100%" height={300}>
+              <ResponsiveContainer width="100%" height={300} minWidth={0}>
                 <LineChart data={trendData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" />
                   <XAxis dataKey="date" tick={{ fill: 'var(--text-secondary)' }} tickLine={false} axisLine={false} />
@@ -179,7 +179,7 @@ const Dashboard = () => {
           <h3>Expense Breakdown</h3>
           {transactions.length === 0 ? (<h3 className="empty-chart-msg">No transactions yet</h3>) : (
             <div className="chart-container-compact">
-              <ResponsiveContainer width="100%" height={200}>
+              <ResponsiveContainer width="100%" height={200} minWidth={0}>
                 <PieChart>
                   <Pie
                     data={expenseByCategory}
@@ -214,7 +214,7 @@ const Dashboard = () => {
           <h3>Weekly Spending</h3>
           {transactions.length === 0 ? (<h3 className="empty-chart-msg">No transactions yet</h3>) : (
             <div className="chart-container-compact">
-              <ResponsiveContainer width="100%" height={260}>
+              <ResponsiveContainer width="100%" height={260} minWidth={0}>
                 <BarChart data={last7DaysData} margin={{ top: 5, right: 10, bottom: 5, left: -20 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" />
                   <XAxis dataKey="dateStr" tick={{ fill: 'var(--text-secondary)', fontSize: 11 }} tickLine={false} axisLine={false} />

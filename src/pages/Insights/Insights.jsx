@@ -222,8 +222,8 @@ const Insights = () => {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', marginTop: '1.5rem' }}>
           <div className="insight-card glass-card">
             <h4>Monthly Income vs Expenses</h4>
-            <div style={{ width: '100%', height: 250, marginTop: '1rem' }}>
-              <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+            <div className="chart-container-compact" style={{ marginTop: '1rem' }}>
+              <ResponsiveContainer width="100%" height={260} minWidth={0} debounce={50}>
                 <BarChart data={monthlyIncomeExpenseData} margin={{ top: 10, right: 10, bottom: 20, left: -20 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" />
                   <XAxis dataKey="month" tick={{ fill: 'var(--text-secondary)', fontSize: 12 }} tickLine={false} axisLine={false} />
@@ -243,8 +243,8 @@ const Insights = () => {
 
           <div className="insight-card glass-card">
             <h4>Category Breakdown</h4>
-            <div style={{ width: '100%', height: 250, marginTop: '1rem' }}>
-              <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+            <div className="chart-container-compact" style={{ marginTop: '1rem' }}>
+              <ResponsiveContainer width="100%" height={260} minWidth={0} debounce={50}>
                 <BarChart data={categoryDataForChart} margin={{ top: 10, right: 10, bottom: 20, left: -20 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" />
                   <XAxis dataKey="category" tick={{ fill: 'var(--text-secondary)', fontSize: 12 }} tickLine={false} axisLine={false} />

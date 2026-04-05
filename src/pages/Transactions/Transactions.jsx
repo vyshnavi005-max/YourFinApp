@@ -75,6 +75,10 @@ export default function Transactions() {
     setIsModalOpen(true);
   };
 
+  const isFiltering = useMemo(() => {
+    return !!(debouncedSearch || filterType !== 'all' || filterCategory !== 'all' || dateFrom || dateTo || minAmount || maxAmount);
+  }, [debouncedSearch, filterType, filterCategory, dateFrom, dateTo, minAmount, maxAmount]);
+
   const filteredAndSorted = useMemo(() => {
     let result = [...transactions];
 
@@ -95,20 +99,22 @@ export default function Transactions() {
     }
 
     if (dateFrom) {
-      result = result.filter(item => new Date(item.date) >= new Date(dateFrom));
+      result = result.filter(item => new Date(item.date).getTime() >= new Date(dateFrom).getTime());
     }
 
     if (dateTo) {
-      result = result.filter(item => new Date(item.date) <= new Date(dateTo));
+      result = result.filter(item => new Date(item.date).getTime() <= new Date(dateTo).getTime());
     }
 
     if (!isAmountRangeInvalid) {
       if (minAmount) {
-        result = result.filter(item => Math.abs(item.amount) >= parseFloat(minAmount));
+        const minVal = parseFloat(minAmount);
+        result = result.filter(item => Math.abs(Number(item.amount)) >= minVal);
       }
 
       if (maxAmount) {
-        result = result.filter(item => Math.abs(item.amount) <= parseFloat(maxAmount));
+        const maxVal = parseFloat(maxAmount);
+        result = result.filter(item => Math.abs(Number(item.amount)) <= maxVal);
       }
     }
 
@@ -127,7 +133,7 @@ export default function Transactions() {
     });
 
     return result;
-  }, [transactions, debouncedSearch, filterType, filterCategory, sortBy, sortOrder, dateFrom, dateTo, minAmount, maxAmount]);
+  }, [transactions, debouncedSearch, filterType, filterCategory, sortBy, sortOrder, dateFrom, dateTo, minAmount, maxAmount, isAmountRangeInvalid]);
 
   const handleExportCSV = () => {
     exportCSV(filteredAndSorted, 'transactions_export.csv');
@@ -307,26 +313,34 @@ export default function Transactions() {
         ) : filteredAndSorted.length === 0 ? (
           <div className="empty-state">
             <ReceiptText size={48} className="empty-icon" />
-            <h3>No transactions found</h3>
-            <p>
-              {searchTerm 
-                ? "We couldn't find any transactions matching your search." 
-                : role === 'admin' 
-                  ? "Start by adding your first transaction to see it here." 
-                  : "Switch to the Admin role to start adding transactions."
-              }
-            </p>
-            {!searchTerm && (
-              role === 'admin' ? (
-                <button className="btn btn-primary" style={{ marginTop: '1rem' }} onClick={handleOpenAdd}>
-                  <Plus size={18} />
-                  Add Transaction
+            {isFiltering ? (
+              <>
+                <h3>No matching results</h3>
+                <p>We couldn't find any transactions matching your current filters.</p>
+                <button className="btn btn-secondary" style={{ marginTop: '1rem' }} onClick={clearFilters}>
+                  Clear All Filters
                 </button>
-              ) : (
-                <div className="role-hint">
-                  <p>Use the role switcher in the header to become an <strong>Admin</strong>.</p>
-                </div>
-              )
+              </>
+            ) : (
+              <>
+                <h3>No transactions found</h3>
+                <p>
+                  {role === 'admin' 
+                    ? "Start by adding your first transaction to see it here." 
+                    : "Switch to the Admin role to start adding transactions."
+                  }
+                </p>
+                {role === 'admin' ? (
+                  <button className="btn btn-primary" style={{ marginTop: '1rem' }} onClick={handleOpenAdd}>
+                    <Plus size={18} />
+                    Add Transaction
+                  </button>
+                ) : (
+                  <div className="role-hint">
+                    <p>Use the role switcher in the header to become an <strong>Admin</strong>.</p>
+                  </div>
+                )}
+              </>
             )}
           </div>
         ) : (
